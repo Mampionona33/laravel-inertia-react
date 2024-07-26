@@ -21,9 +21,8 @@ const AppTopbar = forwardRef((props, ref) => {
     return (
         <div className="layout-topbar">
             <Link href="/" className="layout-topbar-logo">
-                <img src={`/images/logo/-${layoutConfig.colorScheme !== 'light' ? 'white' : 'dark'}.svg`} width="100.22px" height={'35px'} alt="logo" />
-
-                {/*<span>LaraReact</span>*/}
+                <img src={`/images/logo/-avec-text.svg`} height={'35px'} alt="logo" />
+                <span className="text-green-900">Fafiala</span>
             </Link>
 
             <button ref={menubuttonRef} type="button" className="p-link layout-menu-button layout-topbar-button" onClick={onMenuToggle}>

@@ -15,7 +15,8 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                 <div className="sm:fixed sm:top-0 sm:left-0 p-6">
 
                     <div className="flex align-items-center">
-                        <img src={`/images/logo/-${layoutConfig.colorScheme !== 'light' ? 'white' : 'dark'}.svg`} width="100.22px" height={'35px'} alt="logo" className="mr-3"/>
+                        {/* <img src={`/images/logo/-${layoutConfig.colorScheme !== 'light' ? 'white' : 'dark'}.svg`} width="100.22px" height={'35px'} alt="logo" className="mr-3"/> */}
+                        <img src={`/images/logo/-avec-text.svg`} width="100.22px" alt="logo" className="mr-3"/>
 
                         {auth.user ? (
                             <Link
@@ -32,32 +33,23 @@ export default function Welcome({ auth, laravelVersion, phpVersion }) {
                                 >
                                     Log in
                                 </Link>
-
-                                <Link
-                                    href={route('register')}
-                                    className="ml-4 font-semibold text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white focus:outline focus:outline-2 focus:rounded-sm focus:outline-red-500"
-                                >
-                                    Register
-                                </Link>
                             </>
                         )}
                     </div>
                 </div>
 
 
-                <div className="grid grid-nogutter surface-0 text-800">
+                <div className="grid grid-nogutter surface-0 text-800 m-0 min-h-screen">
                     <div className="col-12 md:col-6 p-6 text-center md:text-left flex align-items-center ">
                         <section>
-                            <span className="block text-6xl font-bold mb-1">Create the dashboard</span>
-                            <div className="text-6xl text-primary font-bold mb-3">your clients deserve to see</div>
-                            <p className="mt-0 mb-4 text-700 line-height-3">Craft a visually stunning and user-centric dashboard that showcases the information your clients deserve with bold, impactful design elements.</p>
-
-                            <Button label="Learn More" type="button" className="mr-3 p-button-raised" />
-                            <Button label="Live Demo" type="button" className="p-button-outlined" />
+                            <span className="block text-6xl font-bold mb-1">Dashboard Fafiala</span>
+                            <div className="text-6xl text-green-700 font-bold mb-3">Gestion Optimale des Salles et Finances</div>
+                            <p className="mt-0 mb-4 text-700 line-height-3">Votre solution complète pour la gestion des salles en location : suivez vos réservations, gérez vos revenus et contrôlez vos mouvements financiers avec facilité.</p>
+                           
                         </section>
                     </div>
                     <div className="col-12 md:col-6 overflow-hidden">
-                        <img src="/images/hero/hero-1.png" alt="hero-1" className="md:ml-auto block md:h-full" style={{ clipPath: 'polygon(8% 0, 100% 0%, 100% 100%, 0 100%)' }} />
+                        <img src="/images/hero/fafiala_background_image_02.jpg" alt="backround_fafial" className="md:ml-auto block md:h-full" style={{ clipPath: 'polygon(8% 0, 100% 0%, 100% 100%, 0 100%)' }} />
                     </div>
                 </div>
 

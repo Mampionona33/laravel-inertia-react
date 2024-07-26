@@ -40,12 +40,12 @@ export default function Login({status, canResetPassword}) {
 
 
             <div className="flex align-items-center justify-content-center flex-column">
-                <img src="/images/logo/-dark.svg" alt="hyper" height={50} className="mb-3"/>
-                <div className="surface-card p-6 sm:p-4 shadow-2 border-round w-full lg:w-4">
+                <img src="/images/logo/-avec-text.svg" alt="hyper" height={75} className="mb-3 h-12"/>
+                <div className=" p-6 sm:p-4 shadow-2 border-round w-full lg:w-4">
                     <div className="text-center mb-5">
                         <div className="text-900 text-3xl font-medium mb-3">Welcome Back</div>
                         <span className="text-600 font-medium line-height-3">Don't have an account?</span>
-                        <Link  href={route('register')} className="font-medium no-underline ml-2 text-blue-500 cursor-pointer">Create today!</Link>
+                        <Link  href={route('register')} className="font-medium no-underline ml-2 text-green-700 cursor-pointer">Contact your administrator!</Link>
                     </div>
                     <form onSubmit={submit}>
                         <div>
@@ -85,7 +85,7 @@ export default function Login({status, canResetPassword}) {
                                 {canResetPassword && (
                                     <Link
                                         href={route('password.request')}
-                                        className="font-medium no-underline ml-2 text-blue-500 text-right cursor-pointer"
+                                        className="font-medium no-underline ml-2 text-green-700 text-right cursor-pointer"
                                     >
                                         Forgot your password?
                                     </Link>
