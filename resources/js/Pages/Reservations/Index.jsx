@@ -36,6 +36,7 @@ const Index = () => {
               initialView="dayGridMonth"
               viewHeight={"auto"}
               height={"auto"}
+              locale={"fr"}
             />
           </div>
         </div>
