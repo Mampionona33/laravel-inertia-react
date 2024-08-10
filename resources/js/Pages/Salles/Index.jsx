@@ -1,41 +1,40 @@
-import React, { useState } from "react";
+import AppTable from "@/Components/AppTable";
+import Toast from "@/Components/Toast";
 import Layout from "@/Layouts/layout/layout";
 import { Link, router, usePage } from "@inertiajs/react";
+import React, { useState } from "react";
 import Delete from "./Delete";
-import Toast from "@/Components/Toast";
-import AppTable from "@/Components/AppTable";
 
-const List = ({ users }) => {
-  const [selectedUser, setSelectedUser] = useState(null);
+const Index = ({ salles }) => {
+  const [selectedSalle, setSelectedSalle] = React.useState(null);
   const [showModal, setShowModal] = useState(false);
-  const [showToast, setShowToast] = useState(true);
-
+  const [showToast, setShowToast] = React.useState(true);
   const { props } = usePage();
   const { success } = props;
 
-  const handleDeleteClick = (user) => {
-    setSelectedUser(user);
-    setShowModal(true);
-  };
-
-  const handleEditClick = (user) => {
-    router.visit(route("users.edit", { user: user.id }), {
+  const handleEditClick = (salle) => {
+    router.visit(route("salles.edit", { salle: salle.id }), {
       preserveState: true,
-      only: ["user"],
+      only: ["salle"],
     });
   };
 
+  const handleDeleteClick = (salle) => {
+    setSelectedSalle(salle);
+    setShowModal(true);
+  };
+
   const columns = [
-    { header: "Nom", accessor: "name" },
-    { header: "Email", accessor: "email" },
+    { header: "Numéro", accessor: "numero" },
+    { header: "Capacite", accessor: "capacite" },
+    { header: "Loyer journalier", accessor: "loyer_journalier" },
   ];
 
   return (
     <Layout>
       <h1 className="text-3xl font-bold text-green-950 mb-2">
-        Liste des utilisateurs
+        Liste des salles
       </h1>
-
       {success && showToast && (
         <Toast
           type={"success"}
@@ -47,28 +46,27 @@ const List = ({ users }) => {
       <div className="flex justify-between flex-wrap flex-col gap-4">
         <div className="flex justify-end">
           <Link
-            href={route("users.create")}
+            href={route("salles.create")}
             as="button"
             className="bg-green-900 text-white px-4 py-2 rounded-md"
           >
-            Ajouter un utilisateur
+            Ajouter une salle
           </Link>
         </div>
 
         <AppTable
-          data={users.data}
+          data={salles.data}
           columns={columns}
           handleEditClick={handleEditClick}
           handleDeleteClick={handleDeleteClick}
-          paginationLinks={users.links}
+          paginationLinks={salles.links}
         />
       </div>
-
-      {showModal && selectedUser && (
-        <Delete user={selectedUser} onClose={() => setShowModal(false)} />
+      {showModal && selectedSalle && (
+        <Delete salle={selectedSalle} onClose={() => setShowModal(false)} />
       )}
     </Layout>
   );
 };
 
-export default List;
+export default Index;

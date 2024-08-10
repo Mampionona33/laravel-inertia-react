@@ -11,14 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('users', function (Blueprint $table) {
+        Schema::create('salles', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique(); // Création de la colonne name sans change()
-            $table->string('email')->unique(); // Création de la colonne email sans change()
-            $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
+            $table->string('numero');
+            $table->integer('capacite');
             $table->boolean('active')->default(true);
-            $table->rememberToken();
+            $table->decimal('loyer_journalier', 10, 2);
             $table->timestamps();
         });
     }
@@ -28,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('users');
+        Schema::dropIfExists('salle');
     }
 };

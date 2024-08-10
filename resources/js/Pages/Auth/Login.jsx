@@ -55,7 +55,7 @@ export default function Login({status, canResetPassword}) {
                                     id="email"
                                     type="text"
                                     placeholder="Email address"
-                                    className="w-full"
+                                    className="w-full border-r-2"
                                     value={data.email}
                                     onChange={(e) => setData('email', e.target.value)}
                                 />
