@@ -4,6 +4,7 @@ import { Link, router, usePage } from "@inertiajs/react";
 import Delete from "./Delete";
 import Toast from "@/Components/Toast";
 import AppTable from "@/Components/AppTable";
+import LayoutTitle from "@/Components/LayoutTitle";
 
 const List = ({ users }) => {
   const [selectedUser, setSelectedUser] = useState(null);
@@ -32,9 +33,7 @@ const List = ({ users }) => {
 
   return (
     <Layout>
-      <h1 className="text-3xl font-bold text-green-950 mb-2">
-        Liste des utilisateurs
-      </h1>
+      <LayoutTitle title={"Liste des utilisateurs"} />
 
       {success && showToast && (
         <Toast

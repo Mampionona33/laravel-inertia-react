@@ -2,6 +2,7 @@ import Layout from "@/Layouts/layout/layout";
 import React from "react";
 import { useForm } from "@inertiajs/react";
 import UserForm from "@/Components/UserForm";
+import LayoutTitle from "@/Components/LayoutTitle";
 
 const Edit = ({ user }) => {
   const { data, setData, patch, errors, reset } = useForm({
@@ -18,9 +19,7 @@ const Edit = ({ user }) => {
 
   return (
     <Layout>
-      <h1 className="text-3xl font-bold text-green-950">
-        Modifier l'utilisateur
-      </h1>
+      <LayoutTitle title={"Modifier un utilisateur"} />
       <UserForm
         data={data}
         setData={setData}

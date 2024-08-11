@@ -13,6 +13,7 @@ import { createInertiaApp } from "@inertiajs/react";
 import { resolvePageComponent } from "laravel-vite-plugin/inertia-helpers";
 import { LayoutProvider } from "@/Layouts/layout/context/layoutcontext.jsx";
 import { PrimeReactProvider } from "primereact/api";
+import { ReservationProvider } from "./Layouts/layout/context/reservationContext";
 
 const appName = import.meta.env.VITE_APP_NAME || "Laravel";
 
@@ -28,9 +29,11 @@ createInertiaApp({
 
     root.render(
       <PrimeReactProvider>
-          <LayoutProvider>
+        <LayoutProvider>
+          <ReservationProvider>
             <App {...props} />
-          </LayoutProvider>
+          </ReservationProvider>
+        </LayoutProvider>
       </PrimeReactProvider>
     );
   },

@@ -29639,9 +29639,25 @@ pre.app-code code {
 
 /* Cible les boutons d'InputNumber avec Tailwind CSS */
 .p-inputnumber-button {
-  @apply bg-[#008744] border-none;
+  /* @apply bg-[#008744] border-none; */
 }
 
 .p-inputnumber-button:hover {
-  background-color: rgb(20 93 57) !important;
+  /* background-color: rgb(20 93 57) !important; */
+}
+
+/* Couleur du texte pour les dates dans le calendrier */
+.fc-daygrid-day-number {
+  color: #065f46;
+}
+
+/* Couleur du texte pour les jours de la semaine (lundi, mardi, etc.) */
+.fc .fc-col-header-cell-cushion {
+  color: #065f46;
+}
+
+/* Couleur du texte pour les événements */
+.fc-event-title,
+.fc-event-time {
+  color: #065f46;
 }

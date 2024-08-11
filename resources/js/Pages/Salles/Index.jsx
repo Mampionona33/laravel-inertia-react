@@ -4,6 +4,7 @@ import Layout from "@/Layouts/layout/layout";
 import { Link, router, usePage } from "@inertiajs/react";
 import React, { useState } from "react";
 import Delete from "./Delete";
+import LayoutTitle from "@/Components/LayoutTitle";
 
 const Index = ({ salles }) => {
   const [selectedSalle, setSelectedSalle] = React.useState(null);
@@ -32,9 +33,7 @@ const Index = ({ salles }) => {
 
   return (
     <Layout>
-      <h1 className="text-3xl font-bold text-green-950 mb-2">
-        Liste des salles
-      </h1>
+      <LayoutTitle title={"Liste des salles"} />
       {success && showToast && (
         <Toast
           type={"success"}
