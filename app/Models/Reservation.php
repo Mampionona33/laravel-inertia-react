@@ -17,8 +17,8 @@ class Reservation extends Model
         'nom_client',
         'num_tel',
         'repas',
-        'payment_method', // Ajouté pour la méthode de paiement
-        'total_amount',  // Ajouté pour le montant total si nécessaire
+        'payment_method',
+        'total_amount',
     ];
 
     /**
@@ -40,4 +40,24 @@ class Reservation extends Model
     {
         return $this->belongsTo(Salle::class, 'salle_id');
     }
+
+    /**
+     * Relation avec la table `depenses`.
+     * 
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function depenses()
+    {
+        return $this->hasMany(Depense::class);
+    }
+
+    /**
+     * Casts pour les colonnes.
+     * Cela assure que certaines colonnes sont automatiquement converties.
+     */
+    protected $casts = [
+        'date_debut' => 'datetime',
+        'date_fin' => 'datetime',
+        'total_amount' => 'float',
+    ];
 }

@@ -59,6 +59,7 @@ class ReservationController extends Controller
             'nom_client' => ['required', 'string', 'max:255'],
             'date_debut' => ['required', 'date', 'before:date_fin'],
             'date_fin' => ['required', 'date', 'after:date_debut'],
+            "repas" => ['nullable', 'float', 'max:255'],
         ];
 
         // Validation de base

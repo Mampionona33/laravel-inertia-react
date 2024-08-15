@@ -17,6 +17,7 @@ class CreatePaymentsTable extends Migration
             $table->id();
             $table->foreignId('reservation_id')->constrained()->onDelete('cascade');
             $table->decimal('amount', 10, 2);
+            $table->date('paid_at');
             $table->date('due_date');
             $table->string('status')->default('pending');
             $table->timestamps();

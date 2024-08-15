@@ -1,11 +1,10 @@
-import React, { createContext, useState, useContext } from "react";
+import React, { createContext, useContext, useEffect } from "react";
+import { useForm } from "@inertiajs/react";
 
-// Créez un contexte pour la réservation
 const ReservationContext = createContext();
 
-// Créez un composant Provider pour le contexte
 export const ReservationProvider = ({ children }) => {
-  const [data, setData] = useState({
+  const { data, setData, errors, reset, post } = useForm({
     ref: "",
     nom_client: "",
     num_tel: "",
@@ -13,72 +12,116 @@ export const ReservationProvider = ({ children }) => {
     date_fin: "",
     repas: null,
     salle_id: "",
-    payment_method: "",
-    total_amount: "",
+    payment_method: "un_paiement",
+    total_amount: 0,
     paymentCount: 1,
   });
 
-  const [errors, setErrors] = useState({});
-
-  // Fonction pour mettre à jour les valeurs de formulaire
   const handleInputChange = (name, value) => {
-    setData((prevData) => ({ ...prevData, [name]: value }));
+    setData(name, value);
   };
 
-  // Fonction pour ajouter un paiement
+  const updateTotalAmount = React.useCallback(() => {
+    const total = Array.from({ length: data.paymentCount }).reduce(
+      (sum, _, index) => {
+        const amount = data[`payment_${index + 1}`] || 0;
+        return sum + Number(amount);
+      },
+      0
+    );
+    if (total !== data.total_amount) {
+      setData("total_amount", total);
+    }
+  }, [data.paymentCount, data]);
+
   const addPayment = () => {
-    setData((prevData) => ({
-      ...prevData,
-      paymentCount: prevData.paymentCount + 1,
-    }));
+    setData("paymentCount", data.paymentCount + 1);
   };
 
-  // Fonction pour retirer un paiement
   const removePayment = (index) => {
-    setData((prevData) => ({
-      ...prevData,
-      paymentCount: Math.max(prevData.paymentCount - 1, 1),
-    }));
+    setData((prevData) => {
+      const newData = { ...prevData };
+      delete newData[`payment_${index + 1}`];
+      delete newData[`payment_date_${index + 1}`];
+      return newData;
+    });
+
+    setData("paymentCount", Math.max(data.paymentCount - 1, 1));
   };
 
-  // Fonction pour gérer l'envoi du formulaire
-  const handleSubmit = (event) => {
+  const handlePaymentMethodChange = () => {
+    if (data.paymentCount > 1) {
+      setData("payment_method", "tranches");
+    } else {
+      setData("payment_method", "un_paiement");
+    }
+  };
+
+  useEffect(() => {
+    handlePaymentMethodChange();
+    updateTotalAmount();
+  }, [
+    data.paymentCount,
+    JSON.stringify(
+      Array.from({ length: data.paymentCount }).map(
+        (_, index) => data[`payment_${index + 1}`]
+      )
+    ),
+  ]);
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    // Préparer les données pour l'envoi
+
     const formData = new FormData();
     formData.append("ref", data.ref);
     formData.append("nom_client", data.nom_client);
     formData.append("num_tel", data.num_tel);
-    formData.append("date_debut", data.date_debut);
-    formData.append("date_fin", data.date_fin);
+    formData.append("date_debut", new Date(data.date_debut).toISOString());
+    formData.append("date_fin", new Date(data.date_fin).toISOString());
     formData.append("repas", data.repas);
     formData.append("salle_id", data.salle_id);
 
     const paymentCount = data.paymentCount || 1;
 
+    let totalAmount = 0;
+
     if (paymentCount > 1) {
-      formData.append("payment_method", "tranches");
-      const installments = Array.from({ length: paymentCount }).map(
-        (_, index) => ({
-          amount: data[`payment_${index + 1}`] || null,
-          due_date: data[`payment_date_${index + 1}`] || null,
-        })
+      const tranches = Array.from({ length: paymentCount }).map((_, index) => ({
+        amount: data[`payment_${index + 1}`] || 0,
+        due_date: new Date(data[`payment_date_${index + 1}`]).toISOString(),
+      }));
+      totalAmount = tranches.reduce(
+        (sum, { amount }) => sum + Number(amount),
+        0
       );
-      formData.append("installments", JSON.stringify(installments));
+      formData.append("tranches", JSON.stringify(tranches));
     } else {
-      formData.append("payment_method", "un_paiement");
-      formData.append("total_amount", data.total_amount);
+      totalAmount = data.total_amount;
     }
 
-    console.log("Form data:", Object.fromEntries(formData.entries()));
+    // Ajout du total_amount dans le formData
+    formData.append("total_amount", totalAmount);
 
-    // Envoi des données via Inertia ou autre méthode
-    // router.post(route("reservations.store"), formData, {
-    //   method: "post",
-    //   onSuccess: () => {
-    //     reset();
-    //   },
-    // });
+    // Log pour vérifier les données envoyées
+    console.log(
+      "Form data to be sent:",
+      Object.fromEntries(formData.entries())
+    );
+    console.log("Total Amount Calculated:", totalAmount);
+
+    if (data.total_amount === 0) {
+      console.warn("Total amount is not calculated yet.");
+      return;
+    }
+
+    // Appel POST
+    post(route("reservations.store"), {
+      onSuccess: () => reset(),
+      onError: (errors) => console.log(errors),
+      preserveScroll: true,
+      preserveState: true,
+      data: formData,
+    });
   };
 
   return (
@@ -87,10 +130,11 @@ export const ReservationProvider = ({ children }) => {
         data,
         setData,
         errors,
-        setErrors,
+        reset,
         handleInputChange,
         addPayment,
         removePayment,
+        // updateTotalAmount,
         handleSubmit,
       }}
     >
@@ -99,5 +143,4 @@ export const ReservationProvider = ({ children }) => {
   );
 };
 
-// Créez un hook pour utiliser le contexte plus facilement
 export const useReservation = () => useContext(ReservationContext);
