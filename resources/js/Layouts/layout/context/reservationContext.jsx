@@ -1,4 +1,9 @@
-import React, { createContext, useContext, useEffect } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useCallback,
+} from "react";
 import { useForm } from "@inertiajs/react";
 
 const ReservationContext = createContext();
@@ -15,24 +20,38 @@ export const ReservationProvider = ({ children }) => {
     payment_method: "un_paiement",
     total_amount: 0,
     paymentCount: 1,
+    installments: [{ amount: 0, due_date: "" }],
   });
 
   const handleInputChange = (name, value) => {
     setData(name, value);
   };
 
-  const updateTotalAmount = React.useCallback(() => {
+  // Mise à jour du montant total
+  const updateTotalAmount = useCallback(() => {
     const total = Array.from({ length: data.paymentCount }).reduce(
       (sum, _, index) => {
-        const amount = data[`payment_${index + 1}`] || 0;
+        const amount = data[`amount_${index + 1}`] || 0;
         return sum + Number(amount);
       },
       0
     );
+
+    // Mise à jour du total_amount uniquement si le montant a changé
     if (total !== data.total_amount) {
       setData("total_amount", total);
     }
   }, [data.paymentCount, data]);
+
+  const updateInstallments = () => {
+    const installments = Array.from({ length: data.paymentCount }).map(
+      (_, index) => ({
+        amount: data[`amount_${index + 1}`] || 0,
+        due_date: data[`due_date_${index + 1}`] || "",
+      })
+    );
+    setData("installments", installments);
+  };
 
   const addPayment = () => {
     setData("paymentCount", data.paymentCount + 1);
@@ -41,8 +60,8 @@ export const ReservationProvider = ({ children }) => {
   const removePayment = (index) => {
     setData((prevData) => {
       const newData = { ...prevData };
-      delete newData[`payment_${index + 1}`];
-      delete newData[`payment_date_${index + 1}`];
+      delete newData[`amount_${index + 1}`];
+      delete newData[`due_date_${index + 1}`];
       return newData;
     });
 
@@ -57,17 +76,12 @@ export const ReservationProvider = ({ children }) => {
     }
   };
 
+  // UseEffect pour détecter les changements et mettre à jour les valeurs nécessaires
   useEffect(() => {
     handlePaymentMethodChange();
     updateTotalAmount();
-  }, [
-    data.paymentCount,
-    JSON.stringify(
-      Array.from({ length: data.paymentCount }).map(
-        (_, index) => data[`payment_${index + 1}`]
-      )
-    ),
-  ]);
+    updateInstallments();
+  }, [data.paymentCount, JSON.stringify(data)]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -87,8 +101,8 @@ export const ReservationProvider = ({ children }) => {
 
     if (paymentCount > 1) {
       const tranches = Array.from({ length: paymentCount }).map((_, index) => ({
-        amount: data[`payment_${index + 1}`] || 0,
-        due_date: new Date(data[`payment_date_${index + 1}`]).toISOString(),
+        amount: data[`amount_${index + 1}`] || 0,
+        due_date: new Date(data[`due_date_${index + 1}`]).toISOString(),
       }));
       totalAmount = tranches.reduce(
         (sum, { amount }) => sum + Number(amount),
@@ -99,22 +113,10 @@ export const ReservationProvider = ({ children }) => {
       totalAmount = data.total_amount;
     }
 
-    // Ajout du total_amount dans le formData
-    formData.append("total_amount", totalAmount);
-
-    // Log pour vérifier les données envoyées
-    console.log(
-      "Form data to be sent:",
-      Object.fromEntries(formData.entries())
-    );
-    console.log("Total Amount Calculated:", totalAmount);
-
-    if (data.total_amount === 0) {
-      console.warn("Total amount is not calculated yet.");
-      return;
+    if (totalAmount > 0) {
+      formData.append("total_amount", totalAmount);
     }
 
-    // Appel POST
     post(route("reservations.store"), {
       onSuccess: () => reset(),
       onError: (errors) => console.log(errors),
@@ -134,7 +136,6 @@ export const ReservationProvider = ({ children }) => {
         handleInputChange,
         addPayment,
         removePayment,
-        // updateTotalAmount,
         handleSubmit,
       }}
     >

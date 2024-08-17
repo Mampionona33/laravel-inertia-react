@@ -17,10 +17,10 @@ class CreatePaymentsTable extends Migration
             $table->id();
             $table->foreignId('reservation_id')->constrained()->onDelete('cascade');
             $table->decimal('amount', 10, 2);
-            $table->date('paid_at');
-            $table->date('due_date');
+            $table->timestamp('paid_at')->nullable(); // Corrigé à timestamp pour correspondre à created_at/updated_at
+            $table->timestamp('due_date');
             $table->string('status')->default('pending');
-            $table->timestamps();
+            $table->timestamps(); // created_at et updated_at
         });
     }
 

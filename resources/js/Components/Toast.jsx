@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 
-const Toast = ({ type, message, onClose }) => {
+const Toast = ({ type, message, onClose, withTimer }) => {
   const typeStyles = {
     success: "bg-green-500",
     error: "bg-red-500",
@@ -8,9 +8,10 @@ const Toast = ({ type, message, onClose }) => {
   };
 
   useEffect(() => {
+    if (!withTimer) return;
     const timer = setTimeout(onClose, 5000); // 5 seconds
     return () => clearTimeout(timer);
-  }, [onClose]);
+  }, [onClose, withTimer]);
 
   return (
     <div
@@ -18,21 +19,21 @@ const Toast = ({ type, message, onClose }) => {
     >
       {type === "info" && (
         <div>
-          <div className="rounded-full bg-white p-2 w-10 h-10 flex items-center justify-center">
+          <div className="rounded-full bg-white p-2 flex items-center justify-center">
             <i className="pi pi-info-circle text-gray-700 text-lg px-0"></i>
           </div>
         </div>
       )}
       {type === "error" && (
         <div>
-          <div className="rounded-full bg-white p-2 w-10 h-10 flex items-center justify-center">
+          <div className="rounded-full bg-white p-2 flex items-center justify-center">
             <i className="pi pi-times text-gray-700 text-lg px-0"></i>
           </div>
         </div>
       )}
       {type === "success" && (
         <div>
-          <div className="rounded-full bg-white p-2 w-10 h-10 flex items-center justify-center">
+          <div className="rounded-full bg-white p-2 flex items-center justify-center">
             <i className="pi pi-check text-gray-700 text-lg px-0"></i>
           </div>
         </div>

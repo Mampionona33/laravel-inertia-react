@@ -29,7 +29,10 @@ const AppMenu = () => {
         {
           label: "Reservations",
           icon: "pi pi-fw pi-calendar",
-          to: route("reservations.index"),
+          to: route("reservations.index", {
+            month: new Date().getMonth() + 1,
+            year: new Date().getFullYear(),
+          }),
         },
       ],
     },

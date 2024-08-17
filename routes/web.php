@@ -59,7 +59,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/salles/{salle}/desactivate', [SalleController::class, 'desactivate'])->name('salles.desactivate')->middleware(['auth', 'verified']);
 
 
-    Route::get('/reservation', [ReservationController::class, 'index'])->name('reservations.index')->middleware(['auth', 'verified']);
+    Route::get('/reservations', [ReservationController::class, 'index'])->name('reservations.index')->middleware(['auth', 'verified']);
     Route::get('/reservation/create', [ReservationController::class, 'create'])->name('reservations.create')->middleware(['auth', 'verified']);
     Route::post('/reservation', [ReservationController::class, 'store'])->name('reservations.store')->middleware(['auth', 'verified']);
 });

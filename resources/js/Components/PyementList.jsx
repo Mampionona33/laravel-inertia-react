@@ -2,13 +2,14 @@ import React from "react";
 import { Calendar } from "primereact/calendar";
 import { InputNumber } from "primereact/inputnumber";
 import { useReservation } from "@/Layouts/layout/context/reservationContext";
+import InputError from "./InputError";
 
 const PaymentList = () => {
-  const { data, handleInputChange, addPayment, removePayment } =
+  const { data, handleInputChange, addPayment, removePayment, errors } =
     useReservation();
 
   const handleAmountChange = (index, value) => {
-    handleInputChange(`payment_${index + 1}`, value);
+    handleInputChange(`amount_${index + 1}`, value);
   };
 
   return (
@@ -21,14 +22,14 @@ const PaymentList = () => {
           {/* Input Number */}
           <div className="">
             <label
-              htmlFor={`payment_${index + 1}`}
+              htmlFor={`amount_${index + 1}`}
               className="block font-medium text-sm text-gray-600 mb-1"
             >
               Montant acompte {(index + 1).toString().padStart(2, "0")}
             </label>
             <InputNumber
-              id={`payment_${index + 1}`}
-              value={data[`payment_${index + 1}`] || null}
+              id={`amount_${index + 1}`}
+              value={data[`amount_${index + 1}`] || null}
               required
               onValueChange={(e) => handleAmountChange(index, e.value)}
               className="h-12 w-full"
@@ -38,12 +39,18 @@ const PaymentList = () => {
               currency="MGA"
               locale="fr-MG"
             />
+            {errors[`amount_${index + 1}`] && (
+              <InputError
+                message={errors[`amount_${index + 1}`]}
+                className="text-red-600"
+              />
+            )}
           </div>
 
           {/* Calendar */}
           <div className="">
             <label
-              htmlFor={`payment_date_${index + 1}`}
+              htmlFor={`due_date_${index + 1}`}
               className="block font-medium text-sm text-gray-600 mb-1"
             >
               Date limite de paiement de l'acompte{" "}
@@ -51,14 +58,20 @@ const PaymentList = () => {
             </label>
             <Calendar
               required
-              id={`payment_date_${index + 1}`}
-              value={data[`payment_date_${index + 1}`] || null}
+              id={`due_date_${index + 1}`}
+              value={data[`due_date_${index + 1}`] || null}
               onChange={(e) =>
-                handleInputChange(`payment_date_${index + 1}`, e.value)
+                handleInputChange(`due_date_${index + 1}`, e.value)
               }
               className="w-full"
               showIcon
             />
+            {errors[`due_date_${index + 1}`] && (
+              <InputError
+                message={errors[`due_date_${index + 1}`]}
+                className="text-red-600"
+              />
+            )}
           </div>
 
           {/* Button */}

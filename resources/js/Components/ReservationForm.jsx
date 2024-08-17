@@ -3,14 +3,16 @@ import { Calendar } from "primereact/calendar";
 import { InputNumber } from "primereact/inputnumber";
 import PaymentList from "./PyementList";
 import { useReservation } from "@/Layouts/layout/context/reservationContext";
-import { usePage } from "@inertiajs/react";
+import { router, usePage } from "@inertiajs/react";
 import { InputText } from "primereact/inputtext";
 import { TreeSelect } from "primereact/treeselect";
 import SecondaryButton from "./SecondaryButton";
 import PrimaryButton from "./PrimaryButton";
+import InputError from "./InputError";
 
 const ReservationForm = () => {
-  const { data, handleInputChange, handleSubmit } = useReservation();
+  const { data, handleInputChange, handleSubmit, errors, reset } =
+    useReservation();
   const salles = usePage().props.salles;
   const salleOpt = salles.map((salle) => ({
     key: salle.id.toString(),
@@ -21,6 +23,16 @@ const ReservationForm = () => {
   const handleNodeSelect = (e) => {
     handleInputChange("salle_id", e.value);
   };
+
+  React.useEffect(() => {
+    let mount = true;
+    if (mount) {
+      reset();
+    }
+    return () => {
+      mount = false;
+    };
+  }, []);
 
   return (
     <div className="flex flex-col items-center">
@@ -44,6 +56,9 @@ const ReservationForm = () => {
               onChange={(e) => handleInputChange("ref", e.target.value)}
               className="p-inputtext p-component w-full"
             />
+            {errors.ref && (
+              <InputError message={errors.ref} className="text-red-600" />
+            )}
           </div>
 
           {/* Nom du client */}
@@ -61,6 +76,12 @@ const ReservationForm = () => {
               onChange={(e) => handleInputChange("nom_client", e.target.value)}
               className="p-inputtext p-component w-full"
             />
+            {errors.nom_client && (
+              <InputError
+                message={errors.nom_client}
+                className="text-red-600"
+              />
+            )}
           </div>
 
           {/* Numéro de téléphone */}
@@ -78,6 +99,9 @@ const ReservationForm = () => {
               onChange={(e) => handleInputChange("num_tel", e.target.value)}
               className="p-inputtext p-component w-full"
             />
+            {errors.num_tel && (
+              <InputError message={errors.num_tel} className="text-red-600" />
+            )}
           </div>
 
           {/* Date de début */}
@@ -96,6 +120,12 @@ const ReservationForm = () => {
               className="w-full"
               showIcon
             />
+            {errors.date_debut && (
+              <InputError
+                message={errors.date_debut}
+                className="text-red-600"
+              />
+            )}
           </div>
 
           {/* Date fin */}
@@ -114,6 +144,9 @@ const ReservationForm = () => {
               className="w-full"
               showIcon
             />
+            {errors.date_fin && (
+              <InputError message={errors.date_fin} className="text-red-600" />
+            )}
           </div>
 
           {/* Repas */}
@@ -135,6 +168,9 @@ const ReservationForm = () => {
               currency="MGA"
               locale="fr-MG"
             />
+            {errors.repas && (
+              <InputError message={errors.repas} className="text-red-600" />
+            )}
           </div>
 
           {/* Choisir une salle */}
@@ -154,6 +190,9 @@ const ReservationForm = () => {
               placeholder="Sélectionner une salle"
               className="w-full"
             />
+            {errors.salle_id && (
+              <InputError message={errors.salle_id} className="text-red-600" />
+            )}
           </div>
         </div>
 
