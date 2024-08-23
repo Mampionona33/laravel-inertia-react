@@ -12,23 +12,51 @@ class ReservationController extends Controller
 {
     public function index(Request $request)
     {
-        // Récupérer les paramètres 'month' et 'year' depuis la requête
-        $currentMonth = $request->query('month', now()->month);  // Défaut: mois actuel
-        $currentYear = $request->query('year', now()->year);     // Défaut: année actuelle
+        // Récupérer les paramètres du mois, de l'année et de la salle
+        $currentMonth = $request->query('month', now()->month);
+        $currentYear = $request->query('year', now()->year);
+        $currentSalleId = $request->query('salle_id', null);
 
-        // Logique pour obtenir les réservations selon le mois et l'année
-        $reservations = Reservation::whereMonth('date', $currentMonth)
-            ->whereYear('date', $currentYear)
+        // Déterminer les dates de début et de fin du mois spécifié
+        $startOfMonth = now()->setYear($currentYear)->setMonth($currentMonth)->startOfMonth()->toDateString();
+        $endOfMonth = now()->setYear($currentYear)->setMonth($currentMonth)->endOfMonth()->toDateString();
+
+        // Requête pour récupérer les réservations chevauchant le mois spécifié
+        $reservationsInMonth = Reservation::where(function ($query) use ($startOfMonth, $endOfMonth) {
+            $query->whereBetween('date_debut', [$startOfMonth, $endOfMonth])
+                ->orWhereBetween('date_fin', [$startOfMonth, $endOfMonth])
+                ->orWhere(function ($query) use ($startOfMonth, $endOfMonth) {
+                    $query->where('date_debut', '<=', $startOfMonth)
+                        ->where('date_fin', '>=', $endOfMonth);
+                });
+        })
+            ->when($currentSalleId, function ($query, $currentSalleId) {
+                return $query->where('salle_id', $currentSalleId);
+            })
             ->get();
 
-        // Retourner la vue avec les réservations et les données du mois et de l'année
+        // Récupérer la liste des salles réservées pour la période spécifiée
+        $reservedSalleIds = $reservationsInMonth->pluck('salle_id');
+
+        // Obtenir la liste des salles réservées
+        $reservedSalles = Salle::whereIn('id', $reservedSalleIds)->get();
+
+        // Obtenir la liste des salles non réservées
+        $availableSalles = Salle::whereNotIn('id', $reservedSalleIds)->get();
+
+        // Retourner la vue avec les réservations, les salles réservées et disponibles
         return inertia('Reservations/Index', [
-            'reservations' => $reservations,
+            'reservationsInMonth' => $reservationsInMonth,
+            'reservedSalles' => $reservedSalles,
+            'availableSalles' => $availableSalles,
             'currentMonth' => $currentMonth,
             'currentYear' => $currentYear,
+            'currentSalleId' => $currentSalleId,
+            'salles' => Salle::where('active', true)->get(),
             'success' => session('success'),
         ]);
     }
+
 
     public function create()
     {
@@ -36,12 +64,15 @@ class ReservationController extends Controller
         return Inertia::render('Reservations/Create', ['salles' => $salles]);
     }
 
+    public function detail(Reservation $reservation)
+    {
+        return Inertia::render('Reservations/Detail', ['reservation' => $reservation]);
+    }
+
     public function store(Request $request)
     {
         // Appel à la méthode de validation
         $this->validation($request);
-
-        // dd($request);
 
         // Si la validation passe, on peut créer la réservation
         $reservation = Reservation::create($request->all());

@@ -27,7 +27,7 @@ const AppMenu = () => {
           to: route("salles.index"),
         },
         {
-          label: "Reservations",
+          label: "Calendrier",
           icon: "pi pi-fw pi-calendar",
           to: route("reservations.index", {
             month: new Date().getMonth() + 1,

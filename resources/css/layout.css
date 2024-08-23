@@ -29657,7 +29657,28 @@ pre.app-code code {
 }
 
 /* Couleur du texte pour les événements */
-.fc-event-title,
+/* .fc-event-title,
 .fc-event-time {
   color: #065f46;
+} */
+.rc-tabs-nav-list {
+  display: flex;
+  justify-content: space-between;
+  border-radius: 0.5rem 0.5rem 0 0;
+  background-color: #f5f5f5;
+  border: 2px solid #ddd;
+  padding: 0.5rem;
+}
+
+.rc-tabs-tab-active {
+  background-color: #fff;
+  border-color: #1890ff #1890ff transparent;
+  border-bottom: 2px solid white;
+}
+
+.rc-tabs-tab {
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem 0.5rem 0 0;
+  border: 2px solid transparent;
+  transition: all 0.3s ease-in-out;
 }
