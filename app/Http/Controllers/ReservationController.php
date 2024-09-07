@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Payment;
 use App\Models\Salle;
 use App\Models\Reservation;
+use Carbon\Carbon;
+use Faker\Core\Number;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Validation\ValidationException;
@@ -16,6 +19,12 @@ class ReservationController extends Controller
         $currentMonth = $request->query('month', now()->month);
         $currentYear = $request->query('year', now()->year);
         $currentSalleId = $request->query('salle_id', null);
+
+        if ($currentSalleId && !$this->isSalleIdExists($currentSalleId)) {
+            // page not found
+            abort(404, 'Salle introuvable');
+        }
+
 
         // Déterminer les dates de début et de fin du mois spécifié
         $startOfMonth = now()->setYear($currentYear)->setMonth($currentMonth)->startOfMonth()->toDateString();
@@ -44,6 +53,10 @@ class ReservationController extends Controller
         // Obtenir la liste des salles non réservées
         $availableSalles = Salle::whereNotIn('id', $reservedSalleIds)->get();
 
+        $listReservationHasLatePayments = $this->getReservationsWithLatePayments();
+
+        $listPaidReservations = $this->getPaidReservations();
+
         // Retourner la vue avec les réservations, les salles réservées et disponibles
         return inertia('Reservations/Index', [
             'reservationsInMonth' => $reservationsInMonth,
@@ -52,10 +65,50 @@ class ReservationController extends Controller
             'currentMonth' => $currentMonth,
             'currentYear' => $currentYear,
             'currentSalleId' => $currentSalleId,
+            'listReservationHasLatePayments' => $listReservationHasLatePayments,
+            'listPaidReservations' => $listPaidReservations,
             'salles' => Salle::where('active', true)->get(),
             'success' => session('success'),
         ]);
     }
+
+
+    private function isSalleIdExists($salleId): bool
+    {
+        return Salle::where('id', $salleId)->exists();
+    }
+
+    private function getReservationsWithLatePayments()
+    {
+        $today = Carbon::now()->toDateString();
+
+        // Récupérer les réservations qui ont des paiements en retard
+        $reservationsWithLatePayments = Reservation::whereHas('payments', function ($query) use ($today) {
+            $query->where('status', 'pending')
+                ->where('due_date', '<', $today);
+        })->with(['payments' => function ($query) use ($today) {
+            // Charger uniquement les paiements en retard
+            $query->where('status', 'pending')
+                ->where('due_date', '<', $today);
+        }])->get();
+
+        return $reservationsWithLatePayments;
+    }
+
+    private function getPaidReservations()
+    {
+        $paidReservations = Reservation::whereHas('payments', function ($query) {
+            // Filtrer les réservations qui ont au moins un paiement avec le statut "paid"
+            $query->where('status', 'paid');
+        })->with(['payments' => function ($query) {
+            // Charger uniquement les paiements avec le statut "paid"
+            $query->where('status', 'paid');
+        }])->get();
+
+        return $paidReservations;
+    }
+
+
 
 
     public function create()
@@ -64,39 +117,32 @@ class ReservationController extends Controller
         return Inertia::render('Reservations/Create', ['salles' => $salles]);
     }
 
-    public function detail(Reservation $reservation)
-    {
-        return Inertia::render('Reservations/Detail', ['reservation' => $reservation]);
-    }
 
     public function store(Request $request)
     {
-        // Appel à la méthode de validation
         $this->validation($request);
 
-        // Si la validation passe, on peut créer la réservation
         $reservation = Reservation::create($request->all());
 
+
         // Gestion des paiements
-        if ($request->payment_method === 'un_paiement') {
-            // Paiement en une seule fois
+        $installments = $request->input('installments', []);
+        if (count($installments) === 0) {
             $reservation->payments()->create([
                 'amount' => $request->total_amount,
                 'due_date' => $request->date_debut,
                 'status' => 'pending',
             ]);
-        } elseif ($request->payment_method === 'tranches') {
-            // Paiement en plusieurs tranches
+        } else {
             foreach ($request->installments as $installment) {
                 $reservation->payments()->create([
                     'amount' => $installment['amount'],
-                    'due_date' => $installment['due_date'],
+                    'due_date' => Carbon::parse($installment['due_date'])->format('Y-m-d'),
                     'status' => 'pending',
                 ]);
             }
         }
 
-        // Redirection avec message de succès
         return redirect()->route('reservations.index')->with('success', 'Réservation créée avec succès.');
     }
 

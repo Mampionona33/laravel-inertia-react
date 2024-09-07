@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\AccountController;
+use App\Http\Controllers\DepenseController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\SalleController;
@@ -61,8 +63,14 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/reservations', [ReservationController::class, 'index'])->name('reservations.index')->middleware(['auth', 'verified']);
     Route::get('/reservation/create', [ReservationController::class, 'create'])->name('reservations.create')->middleware(['auth', 'verified']);
-    Route::get('/reservation/{reservation?}/detail', [ReservationController::class, 'detail'])->name('reservations.detail')->middleware(['auth', 'verified']);
     Route::post('/reservation', [ReservationController::class, 'store'])->name('reservations.store')->middleware(['auth', 'verified']);
+
+    Route::get('/reservation/{reservation?}/account', [AccountController::class, 'index'])->name('reservations.account')->middleware(['auth', 'verified']);
+    Route::patch('/reservation/{reservation?}/{id?}/account', [AccountController::class, 'pay'])
+        ->name('reservations.pay')
+        ->middleware(['auth', 'verified']);
+    Route::get('/reservation/{reservation?}/mouvements', [DepenseController::class, 'index'])->name('reservations.depense')->middleware(['auth', 'verified']);
+    Route::post('/reservation/{reservation?}/mouvements', [DepenseController::class, 'store'])->name('reservations.depense.store')->middleware(['auth', 'verified']);
 });
 
 

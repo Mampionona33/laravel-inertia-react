@@ -1,6 +1,6 @@
 import Layout from "@/Layouts/layout/layout";
 import { Link, router, useForm, usePage } from "@inertiajs/react";
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import LayoutTitle from "@/Components/LayoutTitle";
@@ -8,39 +8,119 @@ import Toast from "@/Components/Toast";
 import { TreeSelect } from "primereact/treeselect";
 import InputError from "@/Components/InputError";
 
+const getReservationColor = (reservationId, latePayments, paidReservations) => {
+  // Vérifier si la réservation a des paiements en retard
+  const hasLatePayments = latePayments.some((res) => res.id === reservationId);
+
+  // Vérifier si tous les paiements sont "paid"
+  const allPaid = paidReservations.some((res) => res.id === reservationId);
+
+  // Vérifier si tous les paiements sont en "pending" et pas en retard
+  const allPendingAndNotLate =
+    !hasLatePayments &&
+    paidReservations.some(
+      (res) => res.id === reservationId && res.status === "pending"
+    );
+
+  if (allPaid) {
+    return "#16a085"; // Vert foncé si tous les paiements sont payés
+  } else if (hasLatePayments) {
+    return "#c0392b"; // Rouge si au moins un paiement est en retard
+  } else if (allPendingAndNotLate) {
+    return "#3498db"; // Bleu si tous les paiements sont en pending et pas en retard
+  }
+  return "#3498db";
+};
+
+// Fonction pour fusionner les réservations qui se chevauchent
+const mergeOverlappingReservations = (reservations) => {
+  if (reservations.length === 0) return [];
+
+  const sortedReservations = reservations.sort(
+    (a, b) => new Date(a.date_debut) - new Date(b.date_debut)
+  );
+
+  const mergedReservations = [];
+  let currentMerged = {
+    start: sortedReservations[0].date_debut,
+    end: sortedReservations[0].date_fin,
+  };
+
+  sortedReservations.forEach((reservation, index) => {
+    const currentStart = new Date(reservation.date_debut);
+    const currentEnd = new Date(reservation.date_fin);
+    const mergedEnd = new Date(currentMerged.end);
+
+    if (currentStart <= mergedEnd) {
+      // Étendre la période fusionnée si les réservations se chevauchent
+      currentMerged.end =
+        currentEnd > mergedEnd ? reservation.date_fin : currentMerged.end;
+    } else {
+      // Ajouter la période fusionnée à la liste et commencer une nouvelle période
+      mergedReservations.push({
+        ...currentMerged,
+        title: "Réservations globales",
+      });
+      currentMerged = {
+        start: reservation.date_debut,
+        end: reservation.date_fin,
+      };
+    }
+
+    // Ajouter le dernier événement fusionné à la liste
+    if (index === sortedReservations.length - 1) {
+      mergedReservations.push({
+        ...currentMerged,
+        title: "Réservations globales",
+      });
+    }
+  });
+
+  return mergedReservations;
+};
+
 const Index = () => {
   const { props } = usePage();
   const {
     success,
     currentSalleId,
-    reservedSalles,
     reservationsInMonth,
+    listReservationHasLatePayments,
+    listPaidReservations,
     salles,
     errors,
   } = props;
-  const { data, setData, reset } = useForm({
+
+  const { data, setData } = useForm({
     id: currentSalleId || "",
     numero: "",
   });
 
   const [showToast, setShowToast] = useState(true);
 
-  // Extract query params from window.location
+  // Extraction des paramètres de recherche de la date actuelle
   const searchParams = new URLSearchParams(window.location.search);
   const queryMonth = searchParams.get("month");
   const queryYear = searchParams.get("year");
+  const currentMonth = queryMonth
+    ? parseInt(queryMonth)
+    : new Date().getMonth() + 1;
+  const currentYear = queryYear
+    ? parseInt(queryYear)
+    : new Date().getFullYear();
 
+  // Options pour le TreeSelect des salles
   const salleOpt = salles.map((salle) => ({
     key: salle.id.toString(),
     label: salle.numero,
     value: salle.id,
   }));
 
+  // Gérer la sélection de la salle
   const handleNodeSelect = (e) => {
     const selectedSalleId = e.value;
     setData("id", selectedSalleId);
 
-    // Rediriger vers l'URL avec la salle sélectionnée et les paramètres de date actuels
     router.get(
       route("reservations.index", {
         salle_id: selectedSalleId,
@@ -52,45 +132,34 @@ const Index = () => {
     );
   };
 
-  // Initialize month and year based on the query or default to the current date
-  const currentMonth = queryMonth
-    ? parseInt(queryMonth)
-    : new Date().getMonth() + 1;
-  const currentYear = queryYear
-    ? parseInt(queryYear)
-    : new Date().getFullYear();
-
-  // UseEffect to update parsingData when data.id or reservations change
+  // Préparer les données pour le calendrier
   const parsingData = useMemo(() => {
     if (data.id) {
+      reservationsInMonth.map((res) => {
+        console.log(res);
+      });
       return reservationsInMonth.map((reservation) => ({
         id: reservation.id,
         title: reservation.nom_client,
         start: reservation.date_debut,
         end: reservation.date_fin,
+        backgroundColor: getReservationColor(
+          reservation.id,
+          listReservationHasLatePayments,
+          listPaidReservations
+        ),
+        borderColor: getReservationColor(
+          reservation.id,
+          listReservationHasLatePayments,
+          listPaidReservations
+        ),
       }));
     } else {
-      return reservationsInMonth.length
-        ? [
-            {
-              title: "Réservations globales",
-              start: Math.min(
-                ...reservationsInMonth.map(
-                  (reservation) => new Date(reservation.date_debut)
-                )
-              ),
-              end: Math.max(
-                ...reservationsInMonth.map(
-                  (reservation) => new Date(reservation.date_fin)
-                )
-              ),
-            },
-          ]
-        : [];
+      return mergeOverlappingReservations(reservationsInMonth);
     }
-  }, [data.id, reservationsInMonth]);
+  }, [data.id, reservationsInMonth, listReservationHasLatePayments]);
 
-  // Function to handle date changes and navigate if necessary
+  // Gérer les changements de dates dans le calendrier
   const handleDatesSet = useCallback(
     (arg) => {
       const startDate = new Date(arg.start);
@@ -122,16 +191,16 @@ const Index = () => {
         }
       }
     },
-    [currentMonth, currentYear, data.id, reset]
+    [currentMonth, currentYear, data.id]
   );
 
+  // Gérer le clic sur un événement du calendrier
   const handleEventClick = (event) => {
     if (!currentSalleId) {
       alert("Veuillez choisir une salle");
       return;
     }
-    console.log(event.event.id);
-    router.get(route("reservations.detail", event.event.id));
+    router.get(route("reservations.account", event.event.id));
   };
 
   return (
@@ -191,9 +260,7 @@ const Index = () => {
               locale={"fr"}
               datesSet={handleDatesSet}
               eventClick={handleEventClick}
-              eventBackgroundColor="#008000"
               eventTextColor="#fff"
-              eventBorderColor="#008000"
               editable={true}
               displayEventTime={false}
               initialDate={`${currentYear}-${currentMonth

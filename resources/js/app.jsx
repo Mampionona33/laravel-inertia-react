@@ -14,6 +14,7 @@ import { resolvePageComponent } from "laravel-vite-plugin/inertia-helpers";
 import { LayoutProvider } from "@/Layouts/layout/context/layoutcontext.jsx";
 import { PrimeReactProvider } from "primereact/api";
 import { ReservationProvider } from "./Layouts/layout/context/reservationContext";
+import { ModalProvider } from "./Layouts/layout/context/modalContext";
 
 const appName = import.meta.env.VITE_APP_NAME || "Laravel";
 
@@ -31,7 +32,9 @@ createInertiaApp({
       <PrimeReactProvider>
         <LayoutProvider>
           <ReservationProvider>
-            <App {...props} />
+            <ModalProvider>
+              <App {...props} />
+            </ModalProvider>
           </ReservationProvider>
         </LayoutProvider>
       </PrimeReactProvider>
