@@ -58,6 +58,7 @@ const PaymentList = () => {
             </label>
             <Calendar
               required
+              dateFormat="dd/mm/yy"
               id={`due_date_${index + 1}`}
               value={data[`due_date_${index + 1}`] || null}
               onChange={(e) =>

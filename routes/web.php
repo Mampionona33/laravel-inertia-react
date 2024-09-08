@@ -65,6 +65,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/reservation/create', [ReservationController::class, 'create'])->name('reservations.create')->middleware(['auth', 'verified']);
     Route::post('/reservation', [ReservationController::class, 'store'])->name('reservations.store')->middleware(['auth', 'verified']);
 
+    Route::get('/reservation/{reservation?}/details', [ReservationController::class, 'show'])->name('reservations.show')->middleware(['auth', 'verified']);
     Route::get('/reservation/{reservation?}/account', [AccountController::class, 'index'])->name('reservations.account')->middleware(['auth', 'verified']);
     Route::patch('/reservation/{reservation?}/{id?}/account', [AccountController::class, 'pay'])
         ->name('reservations.pay')

@@ -6,6 +6,7 @@ import Tabs from "rc-tabs";
 import TableAccount from "@/Components/TableAccount";
 import ListeDepense from "@/Components/ListeDepense";
 import Toast from "@/Components/Toast";
+import DetailReservation from "@/Components/DetailReservation";
 
 const Account = () => {
   const { reservation, accountList, salle, activeTab, depenseList, success } =
@@ -13,6 +14,9 @@ const Account = () => {
   const [showToast, setShowToast] = useState(true);
 
   const onTabChange = (key) => {
+    if (key === "0") {
+      router.get(route("reservations.show", reservation.id));
+    }
     if (key === "1") {
       router.get(route("reservations.account", reservation.id));
     }
@@ -22,6 +26,15 @@ const Account = () => {
   };
 
   const items = [
+    {
+      key: "0",
+      label: <p>Details</p>,
+      children: (
+        <div>
+          <DetailReservation />
+        </div>
+      ),
+    },
     {
       key: "1",
       label: <p>Acompte</p>,
@@ -41,8 +54,6 @@ const Account = () => {
       ),
     },
   ];
-
-  console.log(depenseList);
 
   return (
     <Layout>

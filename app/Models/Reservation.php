@@ -18,6 +18,9 @@ class Reservation extends Model
         'num_tel',
         'repas',
         'payment_method',
+        'nb_participants',
+        'remarques',
+        'activites',
         'total_amount',
     ];
 

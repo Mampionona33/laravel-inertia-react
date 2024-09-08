@@ -10,18 +10,21 @@ const Pagination = ({ links }) => {
 
   return (
     <div className="flex justify-center mt-4">
-      {links.map((link, index) => (
-        <button
-          key={index}
-          onClick={() => handlePageChange(link.url)}
-          className={`px-3 py-1 mx-1 rounded ${
-            link.active ? "bg-green-500 text-white" : "bg-white text-green-500"
-          } ${!link.url ? "cursor-not-allowed" : ""}`}
-          disabled={!link.url}
-        >
-          {link.label.replace("&laquo;", "«").replace("&raquo;", "»")}
-        </button>
-      ))}
+      {links &&
+        links.map((link, index) => (
+          <button
+            key={index}
+            onClick={() => handlePageChange(link.url)}
+            className={`px-3 py-1 mx-1 rounded ${
+              link.active
+                ? "bg-green-500 text-white"
+                : "bg-white text-green-500"
+            } ${!link.url ? "cursor-not-allowed" : ""}`}
+            disabled={!link.url}
+          >
+            {link.label.replace("&laquo;", "«").replace("&raquo;", "»")}
+          </button>
+        ))}
     </div>
   );
 };

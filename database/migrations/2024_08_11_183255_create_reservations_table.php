@@ -21,8 +21,11 @@ class CreateReservationsTable extends Migration
             $table->date('date_debut');
             $table->date('date_fin');
             $table->integer('repas')->nullable();
+            $table->integer('nb_participants')->nullable();
+            $table->string('remarques')->nullable();
             $table->foreignId('salle_id')->constrained()->onDelete('cascade');
             $table->string('payment_method');
+            $table->string('activites')->nullable();
             $table->decimal('total_amount', 8, 2)->nullable();
             $table->timestamps();
         });

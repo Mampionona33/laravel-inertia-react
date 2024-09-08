@@ -72,6 +72,10 @@ class ReservationController extends Controller
         ]);
     }
 
+    public function show(Reservation $reservation)
+    {
+        return Inertia::render('Reservations/Account', []);
+    }
 
     private function isSalleIdExists($salleId): bool
     {
@@ -107,9 +111,6 @@ class ReservationController extends Controller
 
         return $paidReservations;
     }
-
-
-
 
     public function create()
     {

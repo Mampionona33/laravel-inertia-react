@@ -115,6 +115,7 @@ const ReservationForm = () => {
             <Calendar
               id="date_debut"
               required
+              dateFormat="dd/mm/yy"
               value={data.date_debut}
               onChange={(e) => handleInputChange("date_debut", e.value)}
               className="w-full"
@@ -139,6 +140,7 @@ const ReservationForm = () => {
             <Calendar
               id="date_fin"
               required
+              dateFormat="dd/mm/yy"
               value={data.date_fin}
               onChange={(e) => handleInputChange("date_fin", e.value)}
               className="w-full"
@@ -192,6 +194,72 @@ const ReservationForm = () => {
             />
             {errors.salle_id && (
               <InputError message={errors.salle_id} className="text-red-600" />
+            )}
+          </div>
+
+          {/* nombre de participants */}
+          <div className="flex flex-col gap-2 col-span-1 md:col-span-2 lg:col-span-3">
+            <label
+              htmlFor="nb_participants"
+              className="block font-medium text-sm text-gray-500 pl-2"
+            >
+              Nombre de participants
+            </label>
+            <InputNumber
+              id="nb_participants"
+              value={data.nb_participants || null}
+              onValueChange={(e) =>
+                handleInputChange("nb_participants", e.value)
+              }
+              className="h-12 w-full"
+              min={0}
+              showButtons
+            />
+            {errors.nb_participants && (
+              <InputError
+                message={errors.nb_participants}
+                className="text-red-600"
+              />
+            )}
+          </div>
+        </div>
+
+        <div className="py-4 flex flex-col gap-4">
+          {/* activita - textearea */}
+          <div className="flex flex-col gap-2 col-span-1 md:col-span-2 lg:col-span-3">
+            <label
+              htmlFor="activite"
+              className="block font-medium text-sm text-gray-500 pl-2"
+            >
+              Activités
+            </label>
+            <textarea
+              id="activites"
+              value={data.activites}
+              onChange={(e) => handleInputChange("activites", e.target.value)}
+              className="w-full"
+            />
+            {errors.activites && (
+              <InputError message={errors.activites} className="text-red-600" />
+            )}
+          </div>
+
+          {/* Remarques */}
+          <div className="flex flex-col gap-2 col-span-1 md:col-span-2 lg:col-span-3">
+            <label
+              htmlFor="remarques"
+              className="block font-medium text-sm text-gray-500 pl-2"
+            >
+              Remarques
+            </label>
+            <textarea
+              id="remarques"
+              value={data.remarques}
+              onChange={(e) => handleInputChange("remarques", e.target.value)}
+              className="w-full"
+            />
+            {errors.remarques && (
+              <InputError message={errors.remarques} className="text-red-600" />
             )}
           </div>
         </div>

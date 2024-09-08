@@ -18,6 +18,9 @@ export const ReservationProvider = ({ children }) => {
     repas: null,
     salle_id: "",
     payment_method: "un_paiement",
+    nb_participants: 0,
+    remarques: "",
+    activites: "",
     total_amount: 0,
     paymentCount: 1,
     installments: [{ amount: 0, due_date: "" }],
@@ -90,6 +93,9 @@ export const ReservationProvider = ({ children }) => {
     formData.append("ref", data.ref);
     formData.append("nom_client", data.nom_client);
     formData.append("num_tel", data.num_tel);
+    formData.append("activites", data.activites);
+    formData.append("remarques", data.remarques);
+    formData.append("nb_participants", data.nb_participants);
     formData.append("date_debut", new Date(data.date_debut).toISOString());
     formData.append("date_fin", new Date(data.date_fin).toISOString());
     formData.append("repas", data.repas);
