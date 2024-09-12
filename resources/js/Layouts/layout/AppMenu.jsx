@@ -2,6 +2,7 @@ import React, { useContext } from "react";
 import AppMenuitem from "./AppMenuitem";
 import { LayoutContext } from "./context/layoutcontext";
 import { MenuProvider } from "./context/menucontext";
+import { format } from "date-fns";
 
 const AppMenu = () => {
   const { layoutConfig } = useContext(LayoutContext);
@@ -33,6 +34,11 @@ const AppMenu = () => {
             month: new Date().getMonth() + 1,
             year: new Date().getFullYear(),
           }),
+        },
+        {
+          label: "Journal",
+          icon: "pi pi-fw pi-book",
+          to: route("journal.index"),
         },
       ],
     },

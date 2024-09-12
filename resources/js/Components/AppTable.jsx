@@ -16,32 +16,30 @@ const AppTable = ({
   return (
     <div className="shadow-sm border rounded-md p-4">
       <table className="table-auto border-collapse w-full">
-        <thead className="bg-green-500 text-white">
-          <tr>
+        <thead className="sticky top-0 z-10 bg-green-100 text-left">
+          <tr className="text-gray-500">
             {columns.map((column, index) => (
-              <th key={index} className="border border-green-500 px-4 py-2">
+              <th key={index} className="p-2">
                 {column.header}
               </th>
             ))}
-            <th className="border border-green-500 px-4 py-2">Actions</th>
+            <th className=" p-2">Actions</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody className="bg-white">
           {data.length > 0 ? (
             data.map((item, index) => (
               <tr
                 key={item.id}
-                className={index % 2 === 0 ? "bg-green-100" : "bg-white"}
+                // className={index % 2 === 0 ? "bg-green-100" : "bg-white"}
+                className="hover:bg-green-50"
               >
                 {columns.map((column, colIndex) => (
-                  <td
-                    key={colIndex}
-                    className="border px-4 py-2 border-green-500"
-                  >
+                  <td key={colIndex} className="border-b p-2">
                     {item[column.accessor]}
                   </td>
                 ))}
-                <td className="border px-4 py-2 border-green-500">
+                <td className="border-b p-2">
                   <div className="flex justify-center gap-4">
                     {standarActions && (
                       <>

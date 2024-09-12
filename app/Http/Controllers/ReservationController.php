@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Depense;
 use App\Models\Payment;
 use App\Models\Salle;
 use App\Models\Reservation;
@@ -74,7 +75,12 @@ class ReservationController extends Controller
 
     public function show(Reservation $reservation)
     {
-        return Inertia::render('Reservations/Account', []);
+        $salle = Salle::find($reservation->salle_id);
+        return Inertia::render('Reservations/Account', [
+            'salle' => $salle,
+            'reservation' => $reservation,
+            "activeTab" => "0"
+        ]);
     }
 
     private function isSalleIdExists($salleId): bool
@@ -194,5 +200,56 @@ class ReservationController extends Controller
                 'salle_id' => 'La salle est déjà réservée pour les dates sélectionnées.',
             ]);
         }
+    }
+
+    public function showJournalDeCaisse(Request $request)
+    {
+        $date_debut = $request->has('date_debut') ? Carbon::parse($request->date_debut) : null;
+        $date_fin = $request->has('date_fin') ? Carbon::parse($request->date_fin) : null;
+
+        // Récupérer les encaissements
+        $cashReceipts = Payment::whereBetween('paid_at', [$date_debut, $date_fin])
+            ->get()
+            ->map(function ($payment) {
+                return [
+                    'ref' => $payment->reservation->ref,
+                    'description' => $payment->reservation->nom_client,
+                    'amount' => $payment->amount,
+                    'date' => $payment->paid_at,
+                    'type' => 'encaissement'
+                ];
+            });
+
+        // Récupérer les décaissements
+        $cashDisbursements = Depense::whereBetween('created_at', [$date_debut, $date_fin])
+            ->get()
+            ->map(function ($depense) {
+                return [
+                    'ref' => $depense->reservation ? $depense->reservation->ref : null,  // Vérification si la relation existe
+                    'description' => $depense->description,
+                    'amount' => $depense->amount,
+                    'date' => $depense->created_at,
+                    'type' => 'decaissement'
+                ];
+            });
+
+        // Combiner les encaissements et décaissements dans une collection unique et trier par date
+        $journalEntries = $cashReceipts->merge($cashDisbursements)->sortBy('date')->values()->toArray();
+
+
+        $totalDepenses = $cashDisbursements->sum('amount');
+        $totalEncaissements = $cashReceipts->sum('amount');
+
+        // Calculer le total
+        $total = $cashReceipts->sum('amount') - $cashDisbursements->sum('amount');
+
+        return Inertia::render('Journal/Index', [
+            'journalEntries' => $journalEntries,
+            'total' => $total,
+            'date_debut' => $date_debut,
+            'date_fin' => $date_fin,
+            'totalEncaissements' => $totalEncaissements,
+            'totalDepenses' => $totalDepenses
+        ]);
     }
 }

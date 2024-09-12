@@ -16,40 +16,64 @@ const TableAccount = ({ accountList }) => {
     setAccount(item);
   };
 
+  const formatAccountList =
+    accountList &&
+    accountList.map((item) => {
+      const output = {
+        ...item,
+      };
+      if (item.status === "paid") {
+        output.status = "Payé";
+      }
+
+      if (item.status === "pending" && new Date(item.due_date) > new Date()) {
+        output.status = "En cours";
+      }
+
+      if (
+        !item.paid_at &&
+        item.status === "pending" &&
+        new Date(item.due_date) < new Date()
+      ) {
+        output.status = "En retard";
+      }
+
+      return output;
+    });
+
+  console.log(formatAccountList);
+
   return (
-    <div>
+    <div className="flex flex-col gap-4">
       <ModalPayerAccount show={show} account={account} />
       <div className="shadow-sm border rounded-md p-4">
-        <table className="table-auto border-collapse w-full">
-          <thead className="bg-green-500 text-white">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-green-100">
             <tr>
-              <th className="border border-green-500 px-4 py-2">Valeur</th>
-              <th className="border border-green-500 px-4 py-2">Status</th>
-              <th className="border border-green-500 px-4 py-2">
+              <th className="p-2 text-left font-medium text-gray-500 tracking-wider">
+                Valeur
+              </th>
+              <th className="p-2 text-left font-medium text-gray-500 tracking-wider">
+                Status
+              </th>
+              <th className="p-2 text-left font-medium text-gray-500 tracking-wider">
                 Date prévue pour le paiement
               </th>
-              <th className="border border-green-500 px-4 py-2">Actions</th>
+              <th className="p-2 text-left font-medium text-gray-500 tracking-wider">
+                Actions
+              </th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="bg-white divide-y divide-gray-200">
             {accountList && accountList.length > 0 ? (
-              accountList.map((item, index) => (
-                <tr
-                  key={item.id}
-                  className={index % 2 === 0 ? "bg-green-100" : "bg-white"}
-                >
-                  <td className="border px-4 py-2 border-green-500">
-                    {Ar(item.amount)}
-                  </td>
-                  <td className="border px-4 py-2 border-green-500">
-                    {item.status}
-                  </td>
-                  <td className="border px-4 py-2 border-green-500">
-                    {item.due_date}
-                  </td>
-                  <td className="border px-4 py-2 border-green-500">
+              formatAccountList.map((item, index) => (
+                <tr key={item.id} className="hover:bg-green-50">
+                  <td className="border-b p-2">{Ar(item.amount)}</td>
+                  <td className="border-b p-2">{item.status}</td>
+                  <td className="border-b p-2">{item.due_date}</td>
+                  <td className="border-b p-2">
                     <div className="flex justify-center gap-4">
-                      {item.status !== "paid" && (
+                      {item.status !== "Payé" && (
                         <button
                           onClick={() => onClickPay(item)}
                           className="hover:text-blue-500"
@@ -65,7 +89,7 @@ const TableAccount = ({ accountList }) => {
               <tr>
                 <td
                   colSpan={4}
-                  className="border border-green-500 px-4 py-2 text-center text-gray-500"
+                  className="border-b px-4 py-2 text-center text-gray-500"
                 >
                   Aucune ressource trouvée
                 </td>

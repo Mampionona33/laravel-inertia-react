@@ -200,7 +200,7 @@ const Index = () => {
       alert("Veuillez choisir une salle");
       return;
     }
-    router.get(route("reservations.account", event.event.id));
+    router.get(route("reservations.show", event.event.id));
   };
 
   return (
@@ -241,6 +241,49 @@ const Index = () => {
                 )}
               </div>
             </div>
+            <div className="flex items-center">
+              <div className="flex w-full p-4 space-x-8 shadow-sm bg-slate-300 rounded-sm">
+                {currentSalleId ? (
+                  <>
+                    <div className="flex items-center gap-2">
+                      <span
+                        className="inline-block bg-red-600 rounded-full"
+                        style={{ width: "10px", height: "10px" }}
+                        aria-label="Retard"
+                      ></span>
+                      <span className="text-gray-700 font-medium w-20">
+                        Retard
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <span
+                        className="inline-block bg-blue-600 rounded-full"
+                        style={{ width: "10px", height: "10px" }}
+                        aria-label="En attente"
+                      ></span>
+                      <span className="text-gray-700 font-medium w-24">
+                        En attente
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <span
+                        className="inline-block bg-green-600 rounded-full"
+                        style={{ width: "10px", height: "10px" }}
+                        aria-label="Payer"
+                      ></span>
+                      <span className="text-gray-700 font-medium w-20">
+                        Payer
+                      </span>
+                    </div>
+                  </>
+                ) : (
+                  <div>Affichage global, veuillez selectionner une salle</div>
+                )}
+              </div>
+            </div>
+
             <div className="flex justify-end items-end">
               <div>
                 <Link

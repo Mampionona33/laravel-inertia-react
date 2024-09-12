@@ -70,8 +70,11 @@ Route::middleware('auth')->group(function () {
     Route::patch('/reservation/{reservation?}/{id?}/account', [AccountController::class, 'pay'])
         ->name('reservations.pay')
         ->middleware(['auth', 'verified']);
+
     Route::get('/reservation/{reservation?}/mouvements', [DepenseController::class, 'index'])->name('reservations.depense')->middleware(['auth', 'verified']);
     Route::post('/reservation/{reservation?}/mouvements', [DepenseController::class, 'store'])->name('reservations.depense.store')->middleware(['auth', 'verified']);
+
+    Route::get('/journales', [ReservationController::class, 'showJournalDeCaisse'])->name('journal.index')->middleware(['auth', 'verified']);
 });
 
 
