@@ -105,7 +105,7 @@ const AppTable = ({
             <tr>
               <td
                 colSpan={columns.length + 1}
-                className="border border-green-500 px-4 py-2 text-center text-gray-500"
+                className="px-4 py-2 text-center text-gray-500"
               >
                 Aucune ressource trouvée
               </td>

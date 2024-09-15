@@ -22,6 +22,7 @@ class Reservation extends Model
         'remarques',
         'activites',
         'total_amount',
+        'status',
     ];
 
     /**

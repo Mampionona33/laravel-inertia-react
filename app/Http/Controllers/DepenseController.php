@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Depense;
 use App\Models\Reservation;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -21,6 +22,11 @@ class DepenseController extends Controller
 
     public function store(Request $request, Reservation $reservation)
     {
+        $reservationDateFin = Carbon::parse($reservation->date_fin);
+
+        if (Carbon::parse(now()) > $reservationDateFin) {
+            return redirect()->back()->withErrors('La réservation est terminée. Vous ne pouvez plus ajouter de dépense.');
+        }
 
         $validatedRequest = $this->validateStore($request);
         $newDepense = Depense::create([

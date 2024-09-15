@@ -1,7 +1,6 @@
 import React from "react";
 import FormAddDepense from "./FormAddDepense";
 import TableDepense from "./TableDepense";
-
 const ListeDepense = () => {
   return (
     <div>

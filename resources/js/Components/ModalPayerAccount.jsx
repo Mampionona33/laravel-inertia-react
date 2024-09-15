@@ -7,6 +7,7 @@ import PrimaryButton from "./PrimaryButton";
 import SecondaryButton from "./SecondaryButton";
 import { useModal } from "@/Layouts/layout/context/modalContext";
 import { useForm } from "@inertiajs/react";
+import { format } from "date-fns";
 
 const FormPayerAccount = ({ account }) => {
   const { handleClose } = useModal();
@@ -33,7 +34,7 @@ const FormPayerAccount = ({ account }) => {
     <div className="flex p-4 flex-col">
       <p>
         Payer la somme de <span className="font-bold">{account.amount} Ar</span>{" "}
-        pour l'acompte du {account.due_date}
+        pour l'acompte du {format(new Date(account.due_date), "dd/MM/yyyy")}
       </p>
       <form onSubmit={handleSubmit}>
         <input

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Calendar } from "primereact/calendar";
 import { InputNumber } from "primereact/inputnumber";
 import PaymentList from "./PyementList";
@@ -11,9 +11,9 @@ import PrimaryButton from "./PrimaryButton";
 import InputError from "./InputError";
 
 const ReservationForm = () => {
-  const { data, handleInputChange, handleSubmit, errors, reset } =
+  const { data, handleInputChange, handleSubmit, errors, reset, setData } =
     useReservation();
-  const salles = usePage().props.salles;
+  const { salles, reservationRef } = usePage().props;
   const salleOpt = salles.map((salle) => ({
     key: salle.id.toString(),
     label: salle.numero,
@@ -28,6 +28,9 @@ const ReservationForm = () => {
     let mount = true;
     if (mount) {
       reset();
+      if (reservationRef) {
+        setData("ref", reservationRef);
+      }
     }
     return () => {
       mount = false;
@@ -51,9 +54,10 @@ const ReservationForm = () => {
             </label>
             <InputText
               id="ref"
-              value={data.ref}
+              value={data.ref || reservationRef}
+              disabled
               required
-              onChange={(e) => handleInputChange("ref", e.target.value)}
+              // onChange={(e) => handleInputChange("ref", e.target.value)}
               className="p-inputtext p-component w-full"
             />
             {errors.ref && (

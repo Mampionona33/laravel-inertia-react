@@ -4,18 +4,23 @@ import { InputText } from "primereact/inputtext";
 import { InputNumber } from "primereact/inputnumber";
 import PrimaryButton from "./PrimaryButton";
 import { router, useForm, usePage } from "@inertiajs/react";
+import Toast from "./Toast";
 
 const FormAddDepense = () => {
   const { data, setData, reset } = useForm({
     description: "",
     amount: 0,
   });
+  const [showToast, setShowToast] = React.useState(false);
 
-  const { reservation } = usePage().props;
+  const { reservation, errors } = usePage().props;
 
   const handleInputChange = (name, value) => {
     setData(name, value);
   };
+
+  // Définir le message d'erreur basé sur la première erreur
+  const errorMessage = errors[Object.keys(errors)[0]]; // Utilisation d'une clé dynamique
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -26,12 +31,24 @@ const FormAddDepense = () => {
         onSuccess: () => {
           reset();
         },
+        onError: () => {
+          setShowToast(true);
+        },
       }
     );
   };
 
   return (
-    <div>
+    <div className="w-full gap-4">
+      {showToast && errorMessage && (
+        <div className="mt-4">
+          <Toast
+            type="error"
+            message={errorMessage}
+            onClose={() => setShowToast(false)}
+          />
+        </div>
+      )}
       <form
         onSubmit={handleSubmit}
         className="flex flex-row gap-4 justify-between p-4"

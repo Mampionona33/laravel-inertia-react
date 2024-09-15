@@ -1,4 +1,4 @@
-import { router, useForm, usePage } from "@inertiajs/react";
+import { Link, router, useForm, usePage } from "@inertiajs/react";
 import { Calendar } from "primereact/calendar";
 import React, { useEffect } from "react";
 import InputError from "./InputError";
@@ -16,6 +16,7 @@ const JournalPageHeader = () => {
     totalDepenses,
     totalEncaissements,
     total,
+    errors: journalErrors,
   } = usePage().props;
 
   // Utilisez useForm pour gérer les états du formulaire
@@ -62,7 +63,23 @@ const JournalPageHeader = () => {
         date_debut: format(data.date_debut, "yyyy-MM-dd"),
         date_fin: format(data.date_fin, "yyyy-MM-dd"),
       },
-      { preserveState: true }
+      {
+        preserveState: true,
+        onError: (error) => {
+          // console.log("error", error);
+        },
+      }
+    );
+  };
+
+  const handleClickExport = (e) => {
+    e.preventDefault();
+    window.open(
+      route("journal.export", {
+        date_debut: format(data.date_debut, "yyyy-MM-dd"),
+        date_fin: format(data.date_fin, "yyyy-MM-dd"),
+      }),
+      "_blank"
     );
   };
 
@@ -87,9 +104,9 @@ const JournalPageHeader = () => {
               className="w-full"
               showIcon
             />
-            {errors.date_debut && (
+            {journalErrors.date_debut && (
               <InputError
-                message={errors.date_debut}
+                message={journalErrors.date_debut}
                 className="text-red-600"
               />
             )}
@@ -112,8 +129,11 @@ const JournalPageHeader = () => {
               className="w-full"
               showIcon
             />
-            {errors.date_fin && (
-              <InputError message={errors.date_fin} className="text-red-600" />
+            {journalErrors.date_fin && (
+              <InputError
+                message={journalErrors.date_fin}
+                className="text-red-600"
+              />
             )}
           </div>
 
@@ -129,16 +149,14 @@ const JournalPageHeader = () => {
               </PrimaryButton>
             </div>
             <div className="flex justify-end items-end">
-              <SecondaryButton
+              <Link
                 type="button"
-                className="w-full py-3"
-                disabled={
-                  !journalEntries ||
-                  (journalEntries && journalEntries.length === 0)
-                }
+                style={{ padding: "0.75rem 1.25rem" }}
+                className="w-full rounded-md text-lg bg-blue-500 text-white"
+                onClick={handleClickExport}
               >
-                Exporter
-              </SecondaryButton>
+                Export
+              </Link>
             </div>
           </div>
         </div>

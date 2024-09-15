@@ -27,6 +27,7 @@ class CreateReservationsTable extends Migration
             $table->string('payment_method');
             $table->string('activites')->nullable();
             $table->decimal('total_amount', 8, 2)->nullable();
+            $table->enum('status', ['pending', 'paid', 'canceled'])->default('pending');
             $table->timestamps();
         });
     }

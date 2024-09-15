@@ -116,6 +116,10 @@ const Index = () => {
     value: salle.id,
   }));
 
+  const getSalleNumber = (salleId) => {
+    return salles.find((salle) => salle.id === salleId).numero;
+  };
+
   // Gérer la sélection de la salle
   const handleNodeSelect = (e) => {
     const selectedSalleId = e.value;
@@ -134,29 +138,50 @@ const Index = () => {
 
   // Préparer les données pour le calendrier
   const parsingData = useMemo(() => {
-    if (data.id) {
-      reservationsInMonth.map((res) => {
-        console.log(res);
-      });
-      return reservationsInMonth.map((reservation) => ({
-        id: reservation.id,
-        title: reservation.nom_client,
-        start: reservation.date_debut,
-        end: reservation.date_fin,
-        backgroundColor: getReservationColor(
-          reservation.id,
-          listReservationHasLatePayments,
-          listPaidReservations
-        ),
-        borderColor: getReservationColor(
-          reservation.id,
-          listReservationHasLatePayments,
-          listPaidReservations
-        ),
-      }));
-    } else {
-      return mergeOverlappingReservations(reservationsInMonth);
-    }
+    return reservationsInMonth.map((reservation) => ({
+      id: reservation.id,
+      title: `${getSalleNumber(reservation.salle_id)} : ${
+        reservation.nom_client
+      }`,
+      start: reservation.date_debut,
+      end: reservation.date_fin,
+      backgroundColor: getReservationColor(
+        reservation.id,
+        listReservationHasLatePayments,
+        listPaidReservations
+      ),
+      borderColor: getReservationColor(
+        reservation.id,
+        listReservationHasLatePayments,
+        listPaidReservations
+      ),
+    }));
+
+    // if (data.id) {
+    // reservationsInMonth.map((res) => {
+    //   console.log(res);
+    // });
+    //   return reservationsInMonth.map((reservation) => ({
+    //     id: reservation.id,
+    //     title: `${getSalleNumber(reservation.salle_id)} : ${
+    //       reservation.nom_client
+    //     }`,
+    //     start: reservation.date_debut,
+    //     end: reservation.date_fin,
+    //     backgroundColor: getReservationColor(
+    //       reservation.id,
+    //       listReservationHasLatePayments,
+    //       listPaidReservations
+    //     ),
+    //     borderColor: getReservationColor(
+    //       reservation.id,
+    //       listReservationHasLatePayments,
+    //       listPaidReservations
+    //     ),
+    //   }));
+    // } else {
+    //   return mergeOverlappingReservations(reservationsInMonth);
+    // }
   }, [data.id, reservationsInMonth, listReservationHasLatePayments]);
 
   // Gérer les changements de dates dans le calendrier
@@ -196,10 +221,10 @@ const Index = () => {
 
   // Gérer le clic sur un événement du calendrier
   const handleEventClick = (event) => {
-    if (!currentSalleId) {
-      alert("Veuillez choisir une salle");
-      return;
-    }
+    // if (!currentSalleId) {
+    //   alert("Veuillez choisir une salle");
+    //   return;
+    // }
     router.get(route("reservations.show", event.event.id));
   };
 
@@ -243,44 +268,40 @@ const Index = () => {
             </div>
             <div className="flex items-center">
               <div className="flex w-full p-4 space-x-8 shadow-sm bg-slate-300 rounded-sm">
-                {currentSalleId ? (
-                  <>
-                    <div className="flex items-center gap-2">
-                      <span
-                        className="inline-block bg-red-600 rounded-full"
-                        style={{ width: "10px", height: "10px" }}
-                        aria-label="Retard"
-                      ></span>
-                      <span className="text-gray-700 font-medium w-20">
-                        Retard
-                      </span>
-                    </div>
+                <>
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="inline-block bg-red-600 rounded-full"
+                      style={{ width: "10px", height: "10px" }}
+                      aria-label="Retard"
+                    ></span>
+                    <span className="text-gray-700 font-medium w-20">
+                      Retard
+                    </span>
+                  </div>
 
-                    <div className="flex items-center gap-2">
-                      <span
-                        className="inline-block bg-blue-600 rounded-full"
-                        style={{ width: "10px", height: "10px" }}
-                        aria-label="En attente"
-                      ></span>
-                      <span className="text-gray-700 font-medium w-24">
-                        En attente
-                      </span>
-                    </div>
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="inline-block bg-blue-600 rounded-full"
+                      style={{ width: "10px", height: "10px" }}
+                      aria-label="En attente"
+                    ></span>
+                    <span className="text-gray-700 font-medium w-24">
+                      En attente
+                    </span>
+                  </div>
 
-                    <div className="flex items-center gap-2">
-                      <span
-                        className="inline-block bg-green-600 rounded-full"
-                        style={{ width: "10px", height: "10px" }}
-                        aria-label="Payer"
-                      ></span>
-                      <span className="text-gray-700 font-medium w-20">
-                        Payer
-                      </span>
-                    </div>
-                  </>
-                ) : (
-                  <div>Affichage global, veuillez selectionner une salle</div>
-                )}
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="inline-block bg-green-600 rounded-full"
+                      style={{ width: "10px", height: "10px" }}
+                      aria-label="Payer"
+                    ></span>
+                    <span className="text-gray-700 font-medium w-20">
+                      Payer
+                    </span>
+                  </div>
+                </>
               </div>
             </div>
 
@@ -309,7 +330,7 @@ const Index = () => {
               initialDate={`${currentYear}-${currentMonth
                 .toString()
                 .padStart(2, "0")}-01`}
-              height={450}
+              // height={450}
               events={parsingData}
             />
           </div>

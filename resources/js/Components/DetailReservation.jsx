@@ -5,10 +5,8 @@ import React from "react";
 const DetailReservation = () => {
   const { reservation, salle } = usePage().props;
 
-  console.log(reservation);
-
   return (
-    <div className="p-4">
+    <div className="p-4 bg-slate-200 text-gray-700 rounded-sm mt-4 shadow-sm">
       <div className="flex gap-2 ">
         <p className="font-bold">Nom du client: </p>
         {reservation.nom_client}

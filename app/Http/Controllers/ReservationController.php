@@ -6,11 +6,13 @@ use App\Models\Depense;
 use App\Models\Payment;
 use App\Models\Salle;
 use App\Models\Reservation;
+use App\Services\ExcelExportService;
 use Carbon\Carbon;
-use Faker\Core\Number;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Validation\ValidationException;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class ReservationController extends Controller
 {
@@ -121,9 +123,24 @@ class ReservationController extends Controller
     public function create()
     {
         $salles = Salle::where('active', true)->get();
-        return Inertia::render('Reservations/Create', ['salles' => $salles]);
+        $ref = $this->generateRef();
+        return Inertia::render('Reservations/Create', ['salles' => $salles, 'reservationRef' => $ref]);
     }
 
+    private function generateRef(): string
+    {
+        // Assurer que nous avons une référence maximale valide
+        $maxRef =  Reservation::max('ref') ?? null;
+        // Extraire le numéro de la référence et s'assurer qu'il est sous forme entière
+        $currentMaxNumber = $maxRef ? (int)substr($maxRef, -4) : 0;
+        // Générer un nouveau numéro en incrémentant de 1
+        $newNumber = $currentMaxNumber + 1;
+        // Formater le numéro pour qu'il ait toujours 4 chiffres
+        $formattedNumber = str_pad($newNumber, 4, '0', STR_PAD_LEFT);
+        // Construire la nouvelle référence
+        $ref = 'RS_' . Carbon::today()->format('Ymd') . '_' . $formattedNumber;
+        return $ref;
+    }
 
     public function store(Request $request)
     {
@@ -204,6 +221,9 @@ class ReservationController extends Controller
 
     public function showJournalDeCaisse(Request $request)
     {
+
+        $this->validateShowJournal($request);
+
         $date_debut = $request->has('date_debut') ? Carbon::parse($request->date_debut) : null;
         $date_fin = $request->has('date_fin') ? Carbon::parse($request->date_fin) : null;
 
@@ -213,7 +233,7 @@ class ReservationController extends Controller
             ->map(function ($payment) {
                 return [
                     'ref' => $payment->reservation->ref,
-                    'description' => $payment->reservation->nom_client,
+                    'description' => 'Accompte pour ' . $payment->reservation->nom_client,
                     'amount' => $payment->amount,
                     'date' => $payment->paid_at,
                     'type' => 'encaissement'
@@ -251,5 +271,72 @@ class ReservationController extends Controller
             'totalEncaissements' => $totalEncaissements,
             'totalDepenses' => $totalDepenses
         ]);
+
+        return redirect()->back();
+    }
+
+    private function validateShowJournal(Request $request)
+    {
+        $rules = [
+            'date_debut' => ['required', 'before_or_equal:date_fin', 'date'],
+            'date_fin' => ['required', 'after_or_equal:date_debut', 'date'],
+        ];
+
+        $customMessages = [
+            'required' => 'Ce champ est requis',
+            'date' => 'La date doit être valide',
+            'before_or_equal' => 'La date de debut doit être anterieure ou égale à la date de fin.',
+            'after_or_equal' => 'La date de fin doit être postérieure ou égale à la date de debut.',
+        ];
+
+        $request->validate($rules, $customMessages);
+
+        return $request;
+    }
+
+    public function exportJournal(Request $request)
+    {
+        // Valider les paramètres de requête
+        $this->validateShowJournal($request);
+        $formatedDateDebut = Carbon::parse($request->date_debut)->format('d/m/Y');
+        $formatedDateFin = Carbon::parse($request->date_fin)->format('d/m/Y');
+
+        $date_debut = $request->has('date_debut') ? $formatedDateDebut : null;
+        $date_fin = $request->has('date_fin') ? $formatedDateFin : null;
+
+        // Récupérer les encaissements
+        $cashReceipts = Payment::whereBetween('paid_at', [$date_debut, $date_fin])
+            ->get()
+            ->map(function ($payment) {
+                return [
+                    'ref' => $payment->reservation->ref,
+                    'description' => 'Accompte pour ' . $payment->reservation->nom_client,
+                    'amount' => $payment->amount,
+                    'date' => Carbon::parse($payment->paid_at)->format('d/m/Y'),
+                    'type' => 'encaissement'
+                ];
+            });
+
+        // Récupérer les décaissements
+        $cashDisbursements = Depense::whereBetween('created_at', [$date_debut, $date_fin])
+            ->get()
+            ->map(function ($depense) {
+                return [
+                    'ref' => $depense->reservation ? $depense->reservation->ref : null,
+                    'description' => $depense->description,
+                    'amount' => $depense->amount,
+                    'date' => Carbon::parse($depense->created_at)->format('d/m/Y'),
+                    'type' => 'decaissement'
+                ];
+            });
+
+        // Combiner les entrées du journal
+        $journalEntries = $cashReceipts->merge($cashDisbursements)->sortBy('date')->values()->toArray();
+
+        // Utiliser la méthode statique pour créer la feuille Excel
+        $spreadsheet = ExcelExportService::createJournalSheet($journalEntries);
+
+        // Télécharger le fichier Excel
+        ExcelExportService::download($spreadsheet, 'journal_du_' . $formatedDateDebut . '_au_' . $formatedDateFin . '.xlsx');
     }
 }

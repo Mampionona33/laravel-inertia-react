@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import ModalPayerAccount from "./ModalPayerAccount";
 import { useModal } from "@/Layouts/layout/context/modalContext";
 import Ar from "@/assets/ariaryCurrency";
+import { format } from "date-fns";
 
 const TableAccount = ({ accountList }) => {
   const [show, setShow] = React.useState(false);
@@ -41,8 +42,6 @@ const TableAccount = ({ accountList }) => {
       return output;
     });
 
-  console.log(formatAccountList);
-
   return (
     <div className="flex flex-col gap-4">
       <ModalPayerAccount show={show} account={account} />
@@ -70,7 +69,9 @@ const TableAccount = ({ accountList }) => {
                 <tr key={item.id} className="hover:bg-green-50">
                   <td className="border-b p-2">{Ar(item.amount)}</td>
                   <td className="border-b p-2">{item.status}</td>
-                  <td className="border-b p-2">{item.due_date}</td>
+                  <td className="border-b p-2">
+                    {format(item.due_date, "dd/MM/yyyy")}
+                  </td>
                   <td className="border-b p-2">
                     <div className="flex justify-center gap-4">
                       {item.status !== "Payé" && (

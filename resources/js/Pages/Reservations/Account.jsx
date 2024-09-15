@@ -37,7 +37,7 @@ const Account = () => {
     },
     {
       key: "1",
-      label: <p>Acompte</p>,
+      label: <p>Accompte</p>,
       children: (
         <div>
           <TableAccount accountList={accountList && accountList.data} />

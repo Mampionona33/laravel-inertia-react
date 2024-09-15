@@ -13,7 +13,7 @@ const JournalPageBody = () => {
           <thead className="sticky top-0 z-10 bg-green-100 text-left">
             <tr className="text-gray-500">
               <th className="p-2">Reférence réservation</th>
-              <th className="p-2">Description</th>
+              <th className="p-2">Libellé</th>
               <th className="p-2">Montant</th>
               <th className="p-2">Date</th>
               <th className="p-2">Encaissement</th>

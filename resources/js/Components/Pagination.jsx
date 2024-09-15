@@ -17,8 +17,8 @@ const Pagination = ({ links }) => {
             onClick={() => handlePageChange(link.url)}
             className={`px-3 py-1 mx-1 rounded ${
               link.active
-                ? "bg-green-500 text-white"
-                : "bg-white text-green-500"
+                ? "bg-green-900 text-white"
+                : "bg-white text-green-bg-green-900"
             } ${!link.url ? "cursor-not-allowed" : ""}`}
             disabled={!link.url}
           >

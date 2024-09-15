@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\DepenseController;
+use App\Http\Controllers\MethodeDePayementController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\SalleController;
@@ -75,6 +76,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/reservation/{reservation?}/mouvements', [DepenseController::class, 'store'])->name('reservations.depense.store')->middleware(['auth', 'verified']);
 
     Route::get('/journales', [ReservationController::class, 'showJournalDeCaisse'])->name('journal.index')->middleware(['auth', 'verified']);
+    Route::get('/journales/export', [ReservationController::class, 'exportJournal'])->name('journal.export')->middleware(['auth', 'verified']);
+
+    Route::get('/methode-de-paiement', [MethodeDePayementController::class, 'index'])->name('methode-de-paiement.index')->middleware(['auth', 'verified']);
 });
 
 
